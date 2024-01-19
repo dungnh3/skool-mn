@@ -1,0 +1,270 @@
+definitions:
+  models.Account:
+    properties:
+      address:
+        type: string
+      created_at:
+        type: string
+      gender:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      phone_no:
+        type: string
+      status:
+        $ref: '#/definitions/store.ObjectStatus'
+      updated_at:
+        type: string
+    type: object
+  models.Register:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      parent_id:
+        type: string
+      register_time:
+        type: string
+      status:
+        $ref: '#/definitions/store.RegisterStatus'
+      student_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  services.RegisterPickUpTime:
+    properties:
+      parent_id:
+        type: string
+      register_time:
+        type: string
+      student_ids:
+        items:
+          type: string
+        type: array
+    required:
+    - parent_id
+    - register_time
+    - student_ids
+    type: object
+  store.ObjectStatus:
+    enum:
+    - active
+    - inactive
+    type: string
+    x-enum-varnames:
+    - Active
+    - InActive
+  store.RegisterStatus:
+    enum:
+    - registered
+    - confirmed
+    - cancelled
+    - rejected
+    - done
+    - waiting
+    - student_left_class
+    - student_out_school
+    type: string
+    x-enum-varnames:
+    - Registered
+    - Confirmed
+    - Cancelled
+    - Rejected
+    - Done
+    - Waiting
+    - StudentLeftClass
+    - StudentOutSchool
+info:
+  contact: {}
+paths:
+  /parents/{id}/students:
+    get:
+      consumes:
+      - application/json
+      description: list all students of parent
+      parameters:
+      - description: parent_id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Account'
+      summary: list all students of parent
+      tags:
+      - Parents
+  /parents/register:
+    post:
+      consumes:
+      - application/json
+      description: register a new schedule pick up
+      parameters:
+      - description: register a new schedule
+        in: body
+        name: register
+        required: true
+        schema:
+          $ref: '#/definitions/services.RegisterPickUpTime'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Register'
+      summary: register a new schedule pick up
+      tags:
+      - Registers
+  /parents/registers/:id/cancel:
+    put:
+      consumes:
+      - application/json
+      description: confirm that parents want to cancel register
+      parameters:
+      - description: register_id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Register'
+      summary: confirm that parents want to cancel register
+      tags:
+      - Registers
+  /parents/registers/:id/confirm:
+    put:
+      consumes:
+      - application/json
+      description: confirm that parents have completed
+      parameters:
+      - description: register_id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Register'
+      summary: confirm that parents have completed
+      tags:
+      - Registers
+  /parents/registers/:id/waiting:
+    put:
+      consumes:
+      - application/json
+      description: confirm that parents is ready for pik up
+      parameters:
+      - description: register_id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Register'
+      summary: confirm that parents is ready for pik up
+      tags:
+      - Registers
+  /students/:id/leave:
+    put:
+      consumes:
+      - application/json
+      description: confirm that this teacher want to reject the register schedule
+      parameters:
+      - description: student_id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: confirm that this student left this class
+      tags:
+      - Students
+  /students/:id/out:
+    put:
+      consumes:
+      - application/json
+      description: confirm that this student left this school
+      parameters:
+      - description: student_id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: confirm that this student left this school
+      tags:
+      - Students
+  /teachers/registers/:id/confirm:
+    put:
+      consumes:
+      - application/json
+      description: confirm that their student has left the class
+      parameters:
+      - description: register_id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Register'
+      summary: confirm that their student has left the class
+      tags:
+      - Teachers
+  /teachers/registers/:id/reject:
+    put:
+      consumes:
+      - application/json
+      description: confirm that this teacher want to reject the register schedule
+      parameters:
+      - description: register_id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Register'
+      summary: confirm that this teacher want to reject the register schedule
+      tags:
+      - Teachers
+swagger: "2.0"

@@ -1,0 +1,35 @@
+version: 2
+sql:
+  - engine: "mysql"
+    queries: "./queries/"
+    schema: "./migrations/"
+    gen:
+      go:
+        package: "store"
+        out: "./internal/models/store"
+        emit_db_tags: true
+        json_tags_case_style: "snake"
+        emit_json_tags: true
+        emit_prepared_queries: true
+        emit_interface: true
+        emit_exact_table_names: false
+        emit_empty_slices: true
+        overrides:
+          - db_type: "timestamp"
+            go_type:
+              import: "time"
+              type: "Time"
+              pointer: true
+            nullable: true
+          - column: "accounts.status"
+            go_type:
+              type: "ObjectStatus"
+          - column: "student_parents.status"
+            go_type:
+              type: "ObjectStatus"
+          - column: "registers.status"
+            go_type:
+              type: "RegisterStatus"
+          - column: "transactions.action_type"
+            go_type:
+              type: "ActionType"

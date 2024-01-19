@@ -108,7 +108,7 @@ func (s *Server) registerPickUpTime(ctx *gin.Context) {
 // @Produce json
 // @Param id path string true "register_id"
 // @Success 200 {object} models.Register
-// @Router /parents/registers/:id/waiting [put]
+// @Router /parents/registers/{id}/waiting [put]
 func (s *Server) waitingFromParent(ctx *gin.Context) {
 	timeoutCtx, cancel := createTimeoutContext(ctx)
 	defer cancel()
@@ -118,6 +118,10 @@ func (s *Server) waitingFromParent(ctx *gin.Context) {
 		lockedRegister, err := r.LockRegister(timeoutCtx, registerId)
 		if err != nil {
 			return err
+		}
+
+		if lockedRegister.Status != store.Registered {
+			return errorz.ErrStatusInvalid
 		}
 
 		if err := r.WaitingFromParent(timeoutCtx, lockedRegister.ID); err != nil {
@@ -148,7 +152,7 @@ func (s *Server) waitingFromParent(ctx *gin.Context) {
 // @Produce json
 // @Param id path string true "register_id"
 // @Success 200 {object} models.Register
-// @Router /parents/registers/:id/cancel [put]
+// @Router /parents/registers/{id}/cancel [put]
 func (s *Server) cancelFromParent(ctx *gin.Context) {
 	timeoutCtx, cancel := createTimeoutContext(ctx)
 	defer cancel()
@@ -158,6 +162,10 @@ func (s *Server) cancelFromParent(ctx *gin.Context) {
 		lockedRegister, err := r.LockRegister(timeoutCtx, registerId)
 		if err != nil {
 			return err
+		}
+
+		if lockedRegister.Status == store.Done || lockedRegister.Status == store.StudentOutSchool {
+			return errorz.ErrStatusInvalid
 		}
 
 		if err := r.CancelFromParent(timeoutCtx, lockedRegister.ID); err != nil {
@@ -188,7 +196,7 @@ func (s *Server) cancelFromParent(ctx *gin.Context) {
 // @Produce json
 // @Param id path string true "register_id"
 // @Success 200 {object} models.Register
-// @Router /parents/registers/:id/confirm [put]
+// @Router /parents/registers/{id}/confirm [put]
 func (s *Server) confirmCompleted(ctx *gin.Context) {
 	timeoutCtx, cancel := createTimeoutContext(ctx)
 	defer cancel()
@@ -228,7 +236,7 @@ func (s *Server) confirmCompleted(ctx *gin.Context) {
 // @Produce json
 // @Param id path string true "register_id"
 // @Success 200 {object} models.Register
-// @Router /teachers/registers/:id/confirm [put]
+// @Router /teachers/registers/{id}/confirm [put]
 func (s *Server) confirmFromTeacher(ctx *gin.Context) {
 	timeoutCtx, cancel := createTimeoutContext(ctx)
 	defer cancel()
@@ -238,6 +246,10 @@ func (s *Server) confirmFromTeacher(ctx *gin.Context) {
 		lockedRegister, err := r.LockRegister(timeoutCtx, registerId)
 		if err != nil {
 			return err
+		}
+
+		if lockedRegister.Status != store.Waiting {
+			return errorz.ErrStatusInvalid
 		}
 
 		if err := r.ConfirmFromTeacher(timeoutCtx, lockedRegister.ID); err != nil {
@@ -278,6 +290,10 @@ func (s *Server) rejectFromTeacher(ctx *gin.Context) {
 		lockedRegister, err := r.LockRegister(timeoutCtx, registerId)
 		if err != nil {
 			return err
+		}
+
+		if lockedRegister.Status == store.Done {
+			return errorz.ErrStatusInvalid
 		}
 
 		if err := r.RejectFromTeacher(timeoutCtx, lockedRegister.ID); err != nil {
@@ -326,6 +342,10 @@ func (s *Server) studentLeaveClass(ctx *gin.Context) {
 			return err
 		}
 
+		if lockedRegister.Status != store.Confirmed {
+			return errorz.ErrStatusInvalid
+		}
+
 		if err := r.StudentLeaveClass(timeoutCtx, lockedRegister.ID); err != nil {
 			return err
 		}
@@ -370,6 +390,14 @@ func (s *Server) studentOutSchool(ctx *gin.Context) {
 		lockedRegister, err := r.LockRegister(timeoutCtx, register.ID)
 		if err != nil {
 			return err
+		}
+
+		if lockedRegister.Status == store.Done {
+			return errorz.ErrStatusInvalid
+		}
+
+		if lockedRegister.Status != store.Confirmed && lockedRegister.Status != store.StudentLeftClass {
+			return errorz.ErrStatusInvalid
 		}
 
 		if err := r.StudentOutSchool(timeoutCtx, lockedRegister.ID); err != nil {

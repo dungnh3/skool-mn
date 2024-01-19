@@ -25,6 +25,9 @@ var (
 
 	// ErrExceptionError will throw if any the Exception Error happen
 	ErrExceptionError = errors.New("exception error")
+
+	// ErrStatusInvalid will throw if any the status invalid
+	ErrStatusInvalid = errors.New("exception error")
 )
 
 var (
@@ -38,6 +41,7 @@ var (
 		ErrIDInvalid:                NewErrorCode(CommonModule, 3),
 		ErrTimeRegisterInputInvalid: NewErrorCode(CommonModule, 4),
 		ErrExceptionError:           NewErrorCode(CommonModule, 5),
+		ErrStatusInvalid:            NewErrorCode(CommonModule, 6),
 	}
 )
 

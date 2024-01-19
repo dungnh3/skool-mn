@@ -30,6 +30,11 @@ CREATE INDEX student_parents_student_id_index on student_parents (student_id);
 
 CREATE INDEX student_parents_status_index on student_parents (status);
 
+ALTER TABLE student_parents
+    ADD CONSTRAINT student_id_fkey FOREIGN KEY (student_id) REFERENCES accounts (id);
+
+ALTER TABLE student_parents
+    ADD CONSTRAINT parent_id_fkey FOREIGN KEY (parent_id) REFERENCES accounts (id);
 
 CREATE TABLE registers
 (

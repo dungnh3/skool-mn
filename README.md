@@ -38,6 +38,9 @@ make migrate-up
 ### Migration database
 [Migration Contents](MIGRATIONS.md)
 
+### Schema database
+[Schema database](SCHEMADB.md)
+
 ### Starting the Server
 To start the SampleService Server, use the following command:
 ```bash
